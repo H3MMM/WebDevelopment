@@ -1,0 +1,123 @@
+ body {
+     font-family: 宋体;
+    color: #BAC2DE;
+    background-color: #1E1E2E;
+     max-width: 1200px;
+     margin: 0 auto;
+     padding: 20px;
+    box-sizing: border-box;
+    font-size: 30px;
+    line-height: 1.8;
+     transition: all 0.7s ease;
+ }
+
+ /* 标题居中 */
+ h1,
+ h2,
+ h3,
+ h4,
+ h5,
+ h6,
+ form,
+ th {
+     text-align: center;
+ }
+
+ table {
+     margin: 0 auto;
+ }
+
+ /* 段落首行缩进2个字符 */
+ p {
+     text-indent: 2em;
+ }
+
+ .image-container {
+     display: flex;
+     /* 图片分别位于容器的两端 */
+     justify-content: center;
+     /* 在侧轴（垂直方向）上居中对齐 */
+     align-items: center;
+     gap: 10px;
+     /* 设置图片之间的间距*/
+ }
+
+ .image-container img {
+     max-width: 62%;
+     /* 控制图片最大宽度，防止撑满整个容器 */
+     height: auto;
+     /* 保持图片原始比例 */
+ }
+ 
+
+  h1,
+  h2 {
+    font-family: JetBrains Mono Nerd Font;
+     color: #F9E2AF;
+ }
+
+  p {
+     color: #BAC2DE;
+ }
+
+  table {
+     box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+ }
+
+  th {
+     color: #F9E2AF;
+     background-color: #1E1E2E;
+ }
+
+  form {
+     background-color: #313244;
+     line-height: 5;
+ }
+
+
+  input[type="text"] {
+     border-radius: 3px;
+     padding: 10px;
+     background-color: #45475A;
+     color: #BAC2DE;
+     border: 1px solid #585B70;
+ }
+
+  input[type="submit"] {
+     padding: 10px;
+    font-size: 26px;
+     background-color: #89B4FA;
+     color: #1E1E2E;
+     border: none;
+     border-radius: 3px;
+     cursor: pointer;
+ }
+
+  select {
+     padding: 10px;
+     background-color: #45475A;
+     color: #BAC2DE;
+     border: 1px solid #585B70;
+    font-size: 26px;
+ }
+
+
+ #toggle-btn {
+     position: fixed;
+     top: 45px;
+     right: 20px;
+     font-size: 18px;
+     font-weight: bold;
+     border: 2px solid #BAC2DE;
+     background: transparent;
+     color: #BAC2DE;
+     padding: 8px 14px;
+     border-radius: 6px;
+     cursor: pointer;
+     transition: all 0.2s ease;
+ }
+
+ #toggle-btn:hover {
+     background: #BAC2DE;
+     color: #1E1E2E;
+ }

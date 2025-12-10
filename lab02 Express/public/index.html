@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYTODO_V1.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 扫描线 -->
+    <div class="scanlines"></div>
+    <div class="screen-flicker"></div>
+
+    <div class="app-shell">
+        <div class="app-container">
+            <header>
+                <div class="brand">
+                    <h1>TASKS_OS <span class="blink">_</span></h1>
+                    <small>SYS.VER.2025</small>
+                </div>
+                <button id="themeToggle" class="theme-btn" aria-label="Toggle Power">
+                    <span class="btn-text">PWR</span>
+                    <div class="indicator"></div>
+                </button>
+            </header>
+
+            <div class="monitor-screen">
+                <div class="input-group">
+                    <form id="todoForm">
+                        <span class="prompt">></span>
+                        <input type="text" id="content" name="content" placeholder="INSERT_DATA..." required
+                            autocomplete="off">
+                        <div class="date-wrapper">
+                            <input type="date" id="deadline" name="deadline">
+                            <svg class="calendar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <button type="submit" class="add-btn">
+                            SAVE
+                        </button>
+                    </form>
+                </div>
+
+                <ul id="todoList" class="todo-list">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <button id="archiveBtn" class="fab-btn" aria-label="View Archive">
+        ARCHIVE_DRIVE
+    </button>
+
+    <div id="archiveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>// ARCHIVED_DATA</h2>
+                <button class="close-btn">[ X ]</button>
+            </div>
+            <ul id="completedList" class="todo-list">
+            </ul>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>// EDIT_DATA</h2>
+                <button class="close-edit-btn close-btn">[ X ]</button>
+            </div>
+            <div style="padding: 20px;">
+                <form id="editForm" style="display: flex; flex-direction: column; gap: 15px;">
+                    <input type="hidden" id="editId">
+                    <div style="border: 1px solid var(--primary); padding: 5px;">
+                        <input type="text" id="editContent" required autocomplete="off" style="width: 100%;">
+                    </div>
+                    <div class="date-wrapper">
+                        <input type="date" id="editDeadline">
+                        <svg class="calendar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <button type="submit" class="add-btn" style="width: 100%;">UPDATE</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/zh.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

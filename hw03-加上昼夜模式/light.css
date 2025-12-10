@@ -1,0 +1,114 @@
+body {
+    font-family: 宋体;
+     color: #333;
+     background-color: #ffffff;
+     max-width: 1200px;
+     margin: 0 auto;
+     padding: 20px;
+    font-size: 30px;
+        line-height: 1.8;
+    box-sizing: border-box;
+     transition: all 0.7s ease;
+ }
+
+ /* 标题居中 */
+ h1,
+ h2,
+ h3,
+ h4,
+ h5,
+ h6,
+ form,
+ th {
+     text-align: center;
+ }
+
+ table {
+     margin: 0 auto;
+ }
+
+ /* 段落首行缩进2个字符 */
+ p {
+     text-indent: 2em;
+ }
+
+ .image-container {
+     display: flex;
+     /* 图片分别位于容器的两端 */
+     justify-content: center;
+     /* 在侧轴（垂直方向）上居中对齐 */
+     align-items: center;
+     gap: 10px;
+     /* 设置图片之间的间距*/
+ }
+
+ .image-container img {
+     max-width: 62%;
+     /* 控制图片最大宽度，防止撑满整个容器 */
+     height: auto;
+     /* 保持图片原始比例 */
+ }
+
+
+
+  h1,
+  h2 {
+    font-family: JetBrains Mono Nerd Font;
+     color: #2c3e50;
+ }
+
+  p {
+     color: #444;
+ }
+
+  table {
+     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ }
+
+  th {
+     background-color: #3498db;
+     color: white;
+ }
+
+  form {
+     background-color: #f8f9fa;
+     line-height: 5;
+ }
+
+
+
+  input[type="text"] {
+     border-radius: 3px;
+     padding: 10px;
+ }
+
+  input[type="submit"] {
+     padding: 10px;
+    font-size: 26px;
+ }
+
+  select {
+     padding: 10px;
+    font-size: 26px;
+ }
+
+
+ #toggle-btn {
+     position: fixed;
+     top: 45px;
+     right: 20px;
+     font-size: 18px;
+     font-weight: bold;
+     border: 2px solid #333;
+     background: transparent;
+     color: #333;
+     padding: 8px 14px;
+     border-radius: 6px;
+     cursor: pointer;
+     transition: all 0.2s ease;
+ }
+
+ #toggle-btn:hover {
+     background: #333;
+     color: #fff;
+ }

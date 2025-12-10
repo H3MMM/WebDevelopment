@@ -1,0 +1,16 @@
+meta {
+  name: GET todo for id=？
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:3306/todos/1
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

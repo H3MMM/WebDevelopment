@@ -1,0 +1,23 @@
+meta {
+  name: DELETE todo
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://localhost:3306/todos/4
+  body: none
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "学习",
+    "deadline": "2025-11-26"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
