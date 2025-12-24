@@ -1,0 +1,32 @@
+# --- 依赖包 (最重要) ---
+node_modules/
+package-lock.json # 注意：通常建议保留这个文件以锁定版本，但如果你是用 yarn，可能要忽略 yarn.lock (看团队规范)
+
+# --- 构建产物 ---
+dist/
+build/
+coverage/
+
+# --- 环境变量 (安全隐患！) ---
+# 绝对不要提交 .env 文件，里面通常包含数据库密码或 API Key
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- 日志文件 ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# --- 系统生成的垃圾文件 ---
+.DS_Store      # macOS 文件夹属性
+Thumbs.db      # Windows 缩略图缓存
+
+# --- IDE 配置文件 (可选，建议忽略) ---
+.idea/         # JetBrains 系列 (IntelliJ, WebStorm)
+.vscode/       # VS Code (除非你们团队共享编辑器配置)
+*.swp          # Vim 交换文件
