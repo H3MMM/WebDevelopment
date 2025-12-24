@@ -25,10 +25,18 @@
                     <h1>TASKS_OS <span class="blink">_</span></h1>
                     <small>SYS.VER.2025</small>
                 </div>
-                <button id="themeToggle" class="theme-btn" aria-label="Toggle Power">
-                    <span class="btn-text">PWR</span>
-                    <div class="indicator"></div>
-                </button>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <span id="userDisplay"
+                        style="font-family: var(--font-mono); font-size: 1rem; color: var(--primary);"></span>
+                    <button id="logoutBtn" class="theme-btn" style="width: auto; padding: 0 10px; font-size: 0.8rem;"
+                        aria-label="Logout">
+                        EXIT
+                    </button>
+                    <button id="themeToggle" class="theme-btn" aria-label="Toggle Power">
+                        <span class="btn-text">PWR</span>
+                        <div class="indicator"></div>
+                    </button>
+                </div>
             </header>
 
             <div class="monitor-screen">

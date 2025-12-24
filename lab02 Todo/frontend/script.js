@@ -1,40 +1,66 @@
 const API_URL = '/todos';
 
+// Auth Check
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    if (!token || token === 'undefined' || token === 'null') {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+        return null;
+    }
+    return token;
+}
+
+function getHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+}
+
+function handleUnauthorized(response) {
+    if (response.status === 401) {
+        console.log('Unauthorized! Redirecting to login...');
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+        return true;
+    }
+    return false;
+}
+
 // Theme Management
 const themeToggle = document.getElementById('themeToggle');
-// 默认主题 'amber' (CSS中默认), 另一个是 'green'
 
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
-    // 这里其实不需要改图标了，因为我们在HTML里把图标换成了电源指示灯
 }
 
-// Initialize Theme
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     setTheme(savedTheme);
 } else {
-    setTheme('amber'); // Default
+    setTheme('amber');
 }
 
-themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    // 切换 琥珀色 / 绿色 终端
-    setTheme(currentTheme === 'green' ? 'amber' : 'green');
-});
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        setTheme(currentTheme === 'blue' ? 'amber' : 'blue');
+    });
+}
 
-// Initialize Flatpickr (保持不变，但 CSS 会覆盖样式)
+// Initialize Flatpickr
 const fp = flatpickr("#deadline", {
     locale: "zh",
     dateFormat: "Y-m-d",
-    disableMobile: "true", // 强制在手机上也使用自定义样式
+    disableMobile: "true",
     altInput: true,
-    altFormat: "Y-m-d", // 保持格式复古
+    altFormat: "Y-m-d",
     placeholder: "DATE: [YYYY-MM-DD]"
 });
 
-// Initialize Flatpickr for Edit Form
 const fpEdit = flatpickr("#editDeadline", {
     locale: "zh",
     dateFormat: "Y-m-d",
@@ -46,11 +72,28 @@ const fpEdit = flatpickr("#editDeadline", {
 
 // App Logic
 document.addEventListener('DOMContentLoaded', () => {
-    fetchTodos(); // Fetch active todos by default
+    // 1. 优先检查权限，如果没有token，这里就会跳转
+    if (!checkAuth()) return;
+
+    fetchTodos();
+    
+    const userDisplay = document.getElementById('userDisplay');
+    if (userDisplay) {
+        userDisplay.textContent = `USER: ${localStorage.getItem('username') || 'UNKNOWN'}`;
+    }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+        });
+    }
 
     document.getElementById('todoForm').addEventListener('submit', handleAddTodo);
 
-    // Archive Modal Logic
+    // Modal Logic
     const archiveModal = document.getElementById('archiveModal');
     const archiveBtn = document.getElementById('archiveBtn');
     const closeArchiveBtn = archiveModal.querySelector('.close-btn');
@@ -64,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         archiveModal.classList.remove('show');
     });
 
-    // Edit Modal Logic
     const editModal = document.getElementById('editModal');
     const closeEditBtn = editModal.querySelector('.close-edit-btn');
     const editForm = document.getElementById('editForm');
@@ -75,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editForm.addEventListener('submit', handleEditTodo);
 
-    //点击模态框外的任意区域关闭模态框
     window.addEventListener('click', (e) => {
         if (e.target === archiveModal) {
             archiveModal.classList.remove('show');
@@ -88,8 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchTodos() {
     try {
-        // Fetch only active todos (status=0)
-        const response = await fetch(`${API_URL}?page=1&size=1000&status=0`);
+        const response = await fetch(`${API_URL}?page=1&size=1000&status=0`, {
+            headers: getHeaders()
+        });
+        if (handleUnauthorized(response)) return;
         if (!response.ok) throw new Error('Failed to fetch');
         const todos = await response.json();
         renderTodos(todos);
@@ -100,8 +143,10 @@ async function fetchTodos() {
 
 async function fetchCompletedTodos() {
     try {
-        // Fetch completed todos (status=1)
-        const response = await fetch(`${API_URL}?page=1&size=100&status=1`);
+        const response = await fetch(`${API_URL}?page=1&size=100&status=1`, {
+            headers: getHeaders()
+        });
+        if (handleUnauthorized(response)) return;
         if (!response.ok) throw new Error('Failed to fetch');
         const todos = await response.json();
         renderCompletedTodos(todos);
@@ -118,12 +163,10 @@ function createTodoElement(todo, index = 0) {
     
     const dateStr = todo.deadline ? new Date(todo.deadline).toLocaleDateString() : '';
 
-    // Checkbox
     const checkbox = document.createElement('div');
     checkbox.className = 'checkbox';
     checkbox.addEventListener('click', () => toggleStatus(todo));
 
-    // Content
     const contentWrapper = document.createElement('div');
     contentWrapper.className = 'content-wrapper';
     contentWrapper.style.cursor = 'pointer';
@@ -141,7 +184,6 @@ function createTodoElement(todo, index = 0) {
         contentWrapper.appendChild(dateSpan);
     }
 
-    // Delete Button
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'delete-btn';
     deleteBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>';
@@ -162,7 +204,6 @@ function renderTodos(todos) {
         list.innerHTML = '<li style="text-align:center; color:var(--text-secondary); padding: 20px;">NO_DATA_FOUND</li>';
         return;
     }
-
     todos.forEach((todo, index) => {
         list.appendChild(createTodoElement(todo, index));
     });
@@ -171,17 +212,16 @@ function renderTodos(todos) {
 function renderCompletedTodos(todos) {
     const list = document.getElementById('completedList');
     list.innerHTML = '';
-
     if (todos.length === 0) {
         list.innerHTML = '<li style="text-align:center; color:var(--text-secondary); padding: 20px;">EMPTY_ARCHIVE</li>';
         return;
     }
-
     todos.forEach((todo, index) => {
         list.appendChild(createTodoElement(todo, index));
     });
 }
 
+// 【修复点】 之前这里的 fetch 语法全乱了
 async function handleAddTodo(e) {
     e.preventDefault();
     const contentInput = document.getElementById('content');
@@ -195,19 +235,24 @@ async function handleAddTodo(e) {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getHeaders(),
             body: JSON.stringify(data)
         });
+        
+        if (handleUnauthorized(response)) return;
 
         if (response.ok) {
             const result = await response.json();
             contentInput.value = '';
             fp.clear();
             
-            const detailResponse = await fetch(`${API_URL}/${result.id}`);
+            const detailResponse = await fetch(`${API_URL}/${result.id}`, {
+                headers: getHeaders()
+            });
             if (detailResponse.ok) {
                 const newTodo = await detailResponse.json();
                 const list = document.getElementById('todoList');
+                // 简单的检查：如果当前列表里是"NO_DATA_FOUND"，则清空
                 if (list.firstElementChild && list.firstElementChild.innerText.includes('NO_DATA')) {
                     list.innerHTML = '';
                 }
@@ -219,19 +264,23 @@ async function handleAddTodo(e) {
     }
 }
 
+// 【修复点】 这里的 fetch 之前也断开了
 async function deleteTodo(id) {
     if (!confirm('CONFIRM_DELETION?')) return;
 
     const element = document.getElementById(`todo-${id}`);
     if (element) {
         element.classList.add('removing');
+        // 等待动画
         await new Promise(resolve => setTimeout(resolve, 400));
     }
 
     try {
         const response = await fetch(`${API_URL}/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getHeaders()
         });
+        if (handleUnauthorized(response)) return;
 
         if (response.ok) {
             if (element) element.remove();
@@ -241,10 +290,10 @@ async function deleteTodo(id) {
     }
 }
 
+// 【修复点】 这里的 fetch 也是
 async function toggleStatus(todo) {
     const newStatus = todo.status == 1 ? 0 : 1;
     
-    // Visual feedback
     const element = document.getElementById(`todo-${todo.id}`);
     if (element) {
         element.classList.add('removing');
@@ -252,7 +301,6 @@ async function toggleStatus(todo) {
         element.remove();
     }
 
-    // Format date to YYYY-MM-DD to avoid MySQL errors
     let formattedDeadline = null;
     if (todo.deadline) {
         const dateObj = new Date(todo.deadline);
@@ -270,16 +318,18 @@ async function toggleStatus(todo) {
     try {
         const response = await fetch(`${API_URL}/${todo.id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getHeaders(),
             body: JSON.stringify(data)
         });
+        
+        if (handleUnauthorized(response)) return;
 
         if (response.ok) {
             if (newStatus === 0) {
                 fetchTodos(); // Refresh main list
             }
         } else {
-            console.error('Update failed:', await response.text());
+            console.error('Update failed');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -303,6 +353,7 @@ function openEditModal(todo) {
     editModal.classList.add('show');
 }
 
+// 【修复点】 修复 PUT 请求语法
 async function handleEditTodo(e) {
     e.preventDefault();
     const id = document.getElementById('editId').value;
@@ -312,15 +363,17 @@ async function handleEditTodo(e) {
     const data = {
         content: content,
         deadline: deadline || null,
-        status: 0 // Assuming we are editing active todos
+        status: 0 
     };
-
+    
     try {
         const response = await fetch(`${API_URL}/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getHeaders(),
             body: JSON.stringify(data)
         });
+        
+        if (handleUnauthorized(response)) return;
 
         if (response.ok) {
             document.getElementById('editModal').classList.remove('show');
@@ -331,14 +384,4 @@ async function handleEditTodo(e) {
     } catch (error) {
         console.error('Error:', error);
     }
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
 }

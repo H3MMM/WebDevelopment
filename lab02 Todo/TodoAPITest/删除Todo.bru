@@ -1,0 +1,20 @@
+meta {
+  name: 删除Todo
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/todos/25
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ0ZXN0MSIsImlhdCI6MTc2NTkzMzE5MiwiZXhwIjoxNzY2MDE5NTkyfQ.mwoHWcCzHc9z5M6vNETnc75wAEwAxw9RqQArwDFhCuQ
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

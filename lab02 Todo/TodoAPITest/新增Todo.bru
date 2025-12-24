@@ -1,0 +1,27 @@
+meta {
+  name: 新增Todo
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/todos
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ0ZXN0MSIsImlhdCI6MTc2NTkzMzE5MiwiZXhwIjoxNzY2MDE5NTkyfQ.mwoHWcCzHc9z5M6vNETnc75wAEwAxw9RqQArwDFhCuQ
+}
+
+body:json {
+  {
+    "content":"testtest",
+    "deadline":"2026-1-1"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

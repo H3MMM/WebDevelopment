@@ -1,0 +1,20 @@
+meta {
+  name: 获取Todo列表
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/todos
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ0ZXN0MSIsImlhdCI6MTc2NjUzNjkyNiwiZXhwIjoxNzY2NjIzMzI2fQ.pQSUxuu5wlA970JnZ_cOpWvo7_Yd74PRnt69yTXM4b8
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

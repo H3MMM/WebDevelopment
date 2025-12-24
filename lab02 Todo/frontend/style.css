@@ -22,12 +22,12 @@
     /* 极小的圆角，甚至直角 */
 }
 
-[data-theme="green"] {
-    --primary: #33ff00;
-    --primary-dim: rgba(51, 255, 0, 0.3);
-    --primary-glow: rgba(51, 255, 0, 0.6);
-    --text-color: #33ff00;
-    --border-color: #1f521f;
+[data-theme="blue"] {
+    --primary: #00f3ff;
+    --primary-dim: rgba(0, 243, 255, 0.3);
+    --primary-glow: rgba(0, 243, 255, 0.6);
+    --text-color: #00f3ff;
+    --border-color: #005f6b;
 }
 
 * {
@@ -214,6 +214,10 @@ body:not([data-theme="green"]) .theme-btn .indicator {
 }
 
 /* --- Input Area --- */
+.input-group {
+    width: 100%;
+}
+
 .input-group form {
     display: flex;
     gap: 10px;
@@ -221,8 +225,10 @@ body:not([data-theme="green"]) .theme-btn .indicator {
     margin-bottom: 30px;
     align-items: center;
     border: 1px solid var(--primary);
-    padding: 10px;
+    padding: 15px;
     box-shadow: 0 0 10px var(--primary-dim);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .prompt {

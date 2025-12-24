@@ -1,0 +1,28 @@
+meta {
+  name: 更新Todo
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseUrl}}/todos/25
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ0ZXN0MSIsImlhdCI6MTc2NTkzMzE5MiwiZXhwIjoxNzY2MDE5NTkyfQ.mwoHWcCzHc9z5M6vNETnc75wAEwAxw9RqQArwDFhCuQ
+}
+
+body:json {
+  {
+    "content":"testtest",
+    "deadline":"2026-1-1",
+    "status":"1"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

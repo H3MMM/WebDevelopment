@@ -1,0 +1,23 @@
+meta {
+  name: 获取验证码
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/signup
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username":"test1",
+    "password":"123"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
