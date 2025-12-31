@@ -5,10 +5,12 @@
 const express = require('express')
 const mysql = require('mysql2')
 
-const chance = require('chance')
+const Chance = require('chance')
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
+const chance = new Chance()
 const { expressjwt } = require('express-jwt')
+const { createClient } = require('redis');
 
 //定义密钥
 const SECRET_KEY = 'my_secret_key_0526'
@@ -21,38 +23,47 @@ const connection = mysql.createConnection({
   database: 'Todo'
 })
 
+const redisClient = createClient({
+    url: 'redis://127.0.0.1:6379' // 默认地址
+});
+
 connection.connect(err => {
   if (err) {
     console.error('failed to connect to database, error: ', err)
     process.exit(1)
   }
-})
+});
 
-const app = express()
-app.use(express.json())
-app.use(express.static('../frontend'))
+(async () => {
+    await redisClient.connect();
+    console.log('Connected to Redis');
+})();
+
+const app = express();
+app.use(express.json());
+app.use(express.static('../frontend'));
 
 
-let serverVerifyCode = null; 
-
-app.get('/get-code', (req, res) => {
-  const { phone } = req.body
+app.post('/get-code', async(req, res) => {
+  const { phone } = req.body;
   if (!phone) return res.status(400).json({ msg: "Missing phone number" })
     const code = chance.string({length: 4, pool: '0123456789' });
-    serverVerifyCode = code.toString(); 
-  
-    console.log('当前生成的验证码是:', serverVerifyCode);
-
-    res.json({ msg: "验证码已生成，请查看控制台" });
+    const key = `verifycode:${phone}`;
+    await redisClient.set(key, code, { EX: 300 });
+    console.log(`手机号 ${phone} 的验证码是: ${code}`);
+    res.json({ msg: "验证码已生成，有效期5分钟，请查看控制台" });
 });
 
 
 
 // 注册新用户
-app.post('/signup', (req, res) => {
-    const { username, password, verifycode } = req.body
-    if (!username || !password || !verifycode) return res.status(400).json({ msg: "Missing fields" })
+app.post('/signup', async (req, res) => {
+    const { username, password, verifycode, phone } = req.body
+    if (!username || !password || !verifycode || !phone) return res.status(400).json({ msg: "Missing fields" })
     
+    const key = `verifycode:${phone}`;
+    const serverVerifyCode = await redisClient.get(key);
+  
     if (!serverVerifyCode || String(verifycode) !== serverVerifyCode) {
           return res.status(400).json({ msg:"Error" })
     }

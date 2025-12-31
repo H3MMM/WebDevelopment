@@ -197,3 +197,231 @@ connection.query(sql, [username], (err, results) => {
   - **只有** 有合法 Token 的人，安检员才会放行（调用 `next()`），让你进入真正的业务函数。
 
 **注意**：只有 `/login` 和 `/register` **不需要** 加中间件，因为那是“办证大厅”，还没证的人当然也要能进。
+
+
+
+这是一份为你准备的 Markdown 格式总结文档。你可以直接复制并保存到你的 `README.md` 或学习笔记中。
+
+这份文档按我们在调试过程中遇到的顺序，梳理了从环境配置到代码逻辑的各类典型错误，非常适合用来复盘。
+
+------
+
+
+
+
+
+# 项目复盘：Redis 模块集成与调试记录
+
+日期：2025-12-31
+
+涉及模块：Node.js (Express), Redis, MySQL, JavaScript 基础
+
+在将验证码存储从全局变量迁移至 Redis 的过程中，遇到了以下 6 个主要问题。以下是详细的错误现象、原因分析及解决方案。
+
+------
+
+## 1. JavaScript 语法陷阱：分号缺失导致的 IIFE 解析错误
+
+### 🔴 错误现象
+
+启动服务时报错：
+
+Bash
+
+```
+TypeError: connection.connect(...) is not a function
+```
+
+### 🧐 原因分析
+
+这是 JavaScript 自动分号插入机制（ASI）的一个经典陷阱。
+
+代码中 connection.connect(...) 这一行末尾没有分号，而下一行代码是以 ( 开头的立即执行函数（IIFE, 用于连接 Redis）。
+
+JS 引擎将它们解析为了一行：connection.connect(...)(async () => ...)，试图将 connect 的返回值当作函数来执行。
+
+### ✅ 解决方案
+
+在 `connection.connect` 代码块末尾显式添加分号。
+
+JavaScript
+
+```
+connection.connect(err => {
+  // ...
+}); // <--- 这里必须加分号
+(async () => {
+    await redisClient.connect();
+})();
+```
+
+------
+
+## 2. 环境配置：Redis 服务未启动
+
+### 🔴 错误现象
+
+Node.js 报错：
+
+Bash
+
+```
+Error: connect ECONNREFUSED 127.0.0.1:6379
+```
+
+### 🧐 原因分析
+
+`npm install redis` 仅仅是安装了 Node.js 操作 Redis 的**客户端库**（遥控器），并没有安装或启动 Redis **数据库服务**（电视机）。在 WSL2 环境下，需要单独启动 Redis Server。
+
+### ✅ 解决方案
+
+在 WSL 终端中启动 Redis 服务：
+
+Bash
+
+```
+# 方式一：后台服务启动（推荐）
+sudo service redis-server start
+
+# 方式二：前台直接运行
+redis-server
+```
+
+------
+
+## 3. 静态资源路径：相对路径导致的 404
+
+### 🔴 错误现象
+
+访问 `http://localhost:3000/` 显示：
+
+Plaintext
+
+```
+Cannot GET /
+```
+
+### 🧐 原因分析
+
+使用了相对路径 app.use(express.static('../frontend'))。
+
+这种写法依赖于运行 Node 命令时的当前目录。如果在项目根目录运行 backend/app.js，Node 会去根目录的上级寻找 frontend，导致找不到文件。
+
+### ✅ 解决方案
+
+使用 `path` 模块和 `__dirname` 锁定绝对路径。
+
+JavaScript
+
+```
+const path = require('path');
+// 确保路径永远指向当前文件(app.js)所在目录的上级 frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+```
+
+------
+
+## 4. 接口定义：HTTP 请求方法不匹配
+
+### 🔴 错误现象
+
+使用 Bruno 测试接口时报错：
+
+Plaintext
+
+```
+Cannot POST /get-code
+```
+
+### 🧐 原因分析
+
+- **后端定义**：`app.get('/get-code', ...)`
+
+- 前端/测试工具：发送了 POST 请求。
+
+  Express 路由严格区分 HTTP Method，找不到对应的 POST 处理器。
+
+### ✅ 解决方案
+
+统一使用 POST 方法（因为获取验证码涉及生成数据和写入 Redis，符合 POST 语义）。
+
+JavaScript
+
+```
+app.post('/get-code', async (req, res) => {
+    // ...
+});
+```
+
+------
+
+## 5. 第三方库使用：类未实例化
+
+### 🔴 错误现象
+
+调用 `chance.string()` 时报错：
+
+Bash
+
+```
+TypeError: chance.string is not a function
+```
+
+### 🧐 原因分析
+
+`require('chance')` 导出的是一个 **构造函数（Class）**，而不是实例对象。直接调用类上的方法是无效的，必须先通过 `new` 关键字实例化。
+
+### ✅ 解决方案
+
+JavaScript
+
+```
+// 错误写法
+// const chance = require('chance');
+
+// 正确写法：引入并立即实例化
+const chance = new (require('chance'))();
+// 或者
+const Chance = require('chance');
+const chance = new Chance();
+```
+
+------
+
+## 6. 数据库调试：错误信息被吞噬
+
+### 🔴 错误现象
+
+注册时返回 `500 Internal Server Error`，响应体仅为 `{"msg": "Error"}`，无法定位具体问题。
+
+### 🧐 原因分析
+
+代码逻辑捕获了数据库错误，但只返回了通用的错误提示，没有将具体的 `err` 对象打印到控制台。这导致无法区分是“用户名已存在”、“字段过长”还是“表不存在”。
+
+### ✅ 解决方案
+
+在开发阶段完善错误日志，并在必要时区分错误码。
+
+JavaScript
+
+```
+connection.query(sql, params, (err, result) => {
+  if (err) {
+      // 关键：打印具体错误堆栈
+      console.error("MySQL Error:", err); 
+      
+      // 进阶：根据错误码返回不同提示
+      if (err.code === 'ER_DUP_ENTRY') {
+          return res.status(400).json({ msg: "用户名已存在" });
+      }
+      return res.status(500).json({ msg: "数据库内部错误" });
+  }
+  // ...
+});
+```
+
+------
+
+总结：
+
+全栈开发不仅需要关注业务逻辑，还需要对 JS 语言特性（如分号、类实例化）、HTTP 协议（动词匹配）、操作系统环境（服务进程、文件路径）保持敏感。遇到不明错误时，"控制台打印详细日志" 永远是解决问题的第一步。
